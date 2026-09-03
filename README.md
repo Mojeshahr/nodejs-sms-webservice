@@ -1,66 +1,153 @@
-#  Payam Resan Node.js SMS API Examples
+<div align="center">
 
-نمونه کدهای آماده Node.js برای اتصال به **وب‌سرویس پیامکی پیام‌رسان**  
-[Payam Resan](https://payam-resan.com) یک سامانه ارسال پیامک انبوه با بیش از 15 سال سابقه در حوزه پیامک تبلیغاتی و خدماتی است.
+<a href="https://payam-resan.com">
+  <img src=".github/assets/logo.svg" width="64" height="64" alt="پیام رسان">
+</a>
 
----
+<h1>نمونه‌کدهای Node.js وب‌سرویس پیام رسان</h1>
 
-## 📌 معرفی پیام‌رسان
+اتصال به وب‌سرویس <a href="https://payam-resan.com"><b>پنل پیامکی پیام رسان</b></a> با Node.js<br>
+یک فایل قابل اجرا به‌ازای هر متد سرویس، بدون هیچ وابستگی
 
-سامانه پیامکی **پیام‌رسان** از سال ۱۳۸۷ فعالیت خود را آغاز کرده و از همان ابتدا تمرکز آن بر روی **ارسال پیامک انبوه** بوده است. به مرور امکانات مختلفی به این سامانه اضافه شده تا امروز به یک پلتفرم کامل پیامکی تبدیل شود.
+[![API](https://img.shields.io/badge/API-V3-0a7cbd)](https://payam-resan.com)
+[![Node](https://img.shields.io/badge/Node-18%2B-339933)](https://nodejs.org)
+[![Dependencies](https://img.shields.io/badge/dependencies-none-2ea44f)](#شروع-سریع)
+[![License](https://img.shields.io/badge/license-MIT-6e7781)](LICENSE)
 
----
+<b>فارسی</b> · <a href="README.en.md">English</a>
 
-## 🛠️ درباره وب‌سرویس پیام‌رسان
+</div>
 
-وب‌سرویس پیامکی پیام‌رسان، یک API ساده اما قدرتمند برای ارسال، دریافت و گزارش پیامک‌ها است. این وب‌سرویس با زبان‌های مختلف و بسترهای متنوع (وب، اپلیکیشن موبایل و ...) سازگار می‌باشد.
-
-### 🔹 ویژگی‌های کلیدی وب‌سرویس:
-- معماری RESTful
-- سرعت ارسال بالا
-- آپتایم 99.9 درصد
-- امنیت با Token و API Key اختصاصی
-- اتصال آسان به انواع CMS (مثل وردپرس) و نرم‌افزارهای اختصاصی
-- پشتیبانی فنی اختصاصی
-- مستندات کامل
-- نمونه کدهای آماده برای برنامه‌نویسان
-- ارسال به لیست سیاه (Black List)
-- ارسال با URL ساده
-- پشتیبانی از Webhook
+<sub>دنبال زبان دیگری هستید؟ همین نمونه‌ها برای زبان‌های دیگر هم در
+[github.com/Mojeshahr](https://github.com/Mojeshahr) هست.</sub>
 
 ---
 
-## 📂 درباره این ریپازیتوری
+## شروع سریع
 
-در این ریپازیتوری، **نمونه‌کدهای Node.js برای استفاده از متدهای مختلف وب‌سرویس پیام‌رسان** قرار داده شده است. اگر توسعه‌دهنده Node.js هستید، می‌توانید به راحتی با این کدها، سامانه پیام‌رسان را به برنامه خود متصل کنید.
+```bash
+git clone https://github.com/Mojeshahr/nodejs-sms-webservice.git
+cd nodejs-sms-webservice
 
-### 📁 ساختار پوشه‌ها:
-| پوشه / فایل | توضیحات |
-|-------------|----------|
-| methods/ | شامل کدهای نمونه برای ارسال، دریافت، گزارش‌گیری و دیگر متدهای وب‌سرویس |
-| config/   | اطلاعات اتصال به API (کلید، URL و ...) |
-| utils/    | توابع کمکی برای ارسال درخواست‌ها |
-| README.md | همین فایل، راهنمای استفاده از ریپو |
+export PAYAM_RESAN_API_KEY='123456-XXXXXXXXXXXXXXX'
+export PAYAM_RESAN_SENDER='30004040'
 
----
+node examples/v3/account-info.mjs
+```
 
-## 🧪 API تستی برای توسعه‌دهندگان
+نه `npm install` لازم است و نه `package.json`. از Node 18 به بعد تابع `fetch`
+در خود Node هست و نمونه‌ها به همان تکیه می‌کنند.
 
-برای پیاده‌سازی و تست ارسال پیامک، می‌توانید از **وب‌سرویس تستی** استفاده کنید. این امکان کمک می‌کند بدون هزینه پیامک واقعی، مکانیزم ارسال خود را بررسی نمایید.
+با `account-info.mjs` شروع کنید: چیزی ارسال نمی‌کند، اعتباری مصرف نمی‌کند، و
+اگر جواب داد یعنی کلید و اتصال هر دو سالم‌اند.
 
-📄 **مستندات کامل وب‌سرویس را از این لینک مشاهده کنید:**  
-👉 [https://doc.sms-webservice.com/](https://doc.sms-webservice.com/)
+## پیش از ارسال واقعی
 
----
+یک سرور آزمایشی هست که مثل سرور عملیاتی جواب می‌دهد ولی پیامکی نمی‌فرستد و
+اعتباری مصرف نمی‌کند. کافی است `V3` در نشانی را با `V3SandBox` عوض کنید. تنها
+استثنا `TokenList` است که روی آن سرور پیاده نشده.
 
-## 📞 پشتیبانی
+## متدها
 
-در صورت نیاز به راهنمایی بیشتر یا بروز خطا در استفاده از API، می‌توانید با تیم فنی پیام‌رسان در تماس باشید.  
-[تماس با ما](https://payam-resan.com)
+<div dir="rtl">
 
----
+| نمونه | متد | کار |
+|---|---|---|
+| [account-info.mjs](examples/v3/account-info.mjs) | `AccountInfo` | اعتبار و خطوط فعال |
+| [send.mjs](examples/v3/send.mjs) | `Send` | ارسال ساده با `GET` |
+| [send-bulk.mjs](examples/v3/send-bulk.mjs) | `SendBulk` | یک متن به چند گیرنده، با شناسه پی‌گیری |
+| [send-multiple.mjs](examples/v3/send-multiple.mjs) | `SendMultiple` | متن جدا برای هر گیرنده |
+| [token-list.mjs](examples/v3/token-list.mjs) | `TokenList` | فهرست قالب‌ها |
+| [send-token-single.mjs](examples/v3/send-token-single.mjs) | `SendTokenSingle` | ارسال قالب به یک شماره |
+| [send-token-single-get.mjs](examples/v3/send-token-single-get.mjs) | `SendTokenSingle` | همان، با `GET` |
+| [send-token-multi.mjs](examples/v3/send-token-multi.mjs) | `SendTokenMulti` | یک قالب، چند گیرنده |
+| [status-by-id.mjs](examples/v3/status-by-id.mjs) | `StatusById` | وضعیت با شناسه سامانه |
+| [status-by-user-trace-id.mjs](examples/v3/status-by-user-trace-id.mjs) | `StatusByUserTraceId` | وضعیت با شناسه خودتان |
+| [get-inbox.mjs](examples/v3/get-inbox.mjs) | `GetInbox` | پیامک‌های رسیده |
 
-## ⚖️ مجوز
+</div>
 
-این پروژه تحت مجوز [MIT License](LICENSE) ارائه شده است. استفاده آزاد با ذکر منبع مجاز است.
+## چرا پسوند mjs
 
+با `.mjs` تابع `await` در سطح فایل کار می‌کند و به `package.json` نیازی نیست،
+پس هر فایل تنها با `node <file>` اجرا می‌شود.
+
+اگر پروژه شما CommonJS است، همان کد را داخل یک تابع async بگذارید:
+
+```js
+async function main() {
+  // بدنه نمونه، بدون تغییر
+}
+
+main();
+```
+
+## استفاده در پروژه خودتان
+
+نمونه‌ها عمداً به هیچ چیز این مخزن وابسته نیستند، پس کپی‌کردن فایل داخل پروژه
+شما کافی است. اگر کلاینت HTTP خودتان را دارید، فقط بدنه درخواست و بررسی پاسخ
+را بردارید:
+
+```js
+const response = await got.post('https://api.sms-webservice.com/api/V3/SendBulk', {
+  json: {
+    ApiKey: process.env.PAYAM_RESAN_API_KEY,
+    Sender: 30004040,
+    Text: 'کد تأیید شما ۱۲۳۴۵۶ است',
+    Recipients: [{ Destination: 9121112222, UserTraceId: 1001 }],
+  },
+}).json();
+
+if (!response.Success) {
+  throw new Error(`پیامک ارسال نشد: ${response.Error} (کد ${response.ErrorCode})`);
+}
+```
+
+یک بسته نصب‌شدنی npm هم در برنامه هست و در مخزن جداگانه‌ای منتشر می‌شود.
+
+## چند نکته که وقت‌تان را می‌خرد
+
+**کد وضعیت HTTP را نخوانید.** سرویس همیشه `200` برمی‌گرداند، حتی وقتی کلید
+اشتباه است. یعنی `answer.ok` چیزی درباره موفقیت نمی‌گوید؛ تصمیم را از فیلد
+`Success` بگیرید. هر نمونه اینجا همین کار را می‌کند.
+
+**شماره گیرنده صفر ابتدایی ندارد.** یعنی `9121112222` یا با کد کشور
+`989121112222`. شماره‌ای که با `9` یا `989` شروع نشود کد خطای `13` می‌گیرد.
+
+**متن را دوباره encode نکنید.** در `send.mjs` کلاس `URLSearchParams` خودش یک بار
+این کار را می‌کند. اگر پیش از آن هم `encodeURIComponent` کنید، پیامک با
+نویسه‌های `%D8` به گوشی می‌رسد.
+
+**برای هر گیرنده یک `UserTraceId` یکتا بفرستید.** بعد از یک timeout، این تنها
+راه فهمیدن این است که پیامک ثبت شده یا نه.
+
+## امنیت کلید
+
+کلید یک راز است. در مخزن کد، در جاوااسکریپت مرورگر و در بسته اپلیکیشن موبایل
+نباید قرار بگیرد. جای آن متغیر محیطی است، همان‌طور که همه نمونه‌ها می‌خوانندش.
+
+اگر کلیدی لو رفت، از پنل یکی تازه بسازید. کلید حذف‌شده برنمی‌گردد.
+
+## ساختار
+
+<div dir="rtl">
+
+| مسیر | چه چیزی دارد |
+|---|---|
+| `examples/v3/` | یک نمونه مستقل به‌ازای هر عملیات سرویس |
+| `.env.example` | نمونه متغیرهای محیطی |
+
+</div>
+
+عدد `v3` در مسیر عمدی است. نسخه تازه سرویس یعنی پوشه `examples/v<n>/` تازه، و
+پوشه موجود دست‌نخورده می‌ماند.
+
+## مستندات و پشتیبانی
+
+راهنمای کامل وب‌سرویس در [docs.payam-resan.com](https://docs.payam-resan.com)
+است. توصیف ماشین‌خوان OpenAPI هم در
+[sms-webservice-spec](https://github.com/Mojeshahr/sms-webservice-spec).
+
+## مجوز
+
+MIT. متن کامل در [`LICENSE`](LICENSE).

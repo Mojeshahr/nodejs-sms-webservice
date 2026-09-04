@@ -150,4 +150,4 @@ if (!response.Success) {
 
 ## مجوز
 
-MIT. متن کامل در [`LICENSE`](LICENSE).
+منتشرشده با مجوز MIT. متن کامل در [`LICENSE`](LICENSE).

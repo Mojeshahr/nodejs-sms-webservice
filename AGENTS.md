@@ -1,81 +1,186 @@
-# Agent guide
+# Working with this repository
 
-Runnable Node.js examples for the Payam Resan SMS web service. One file per API
-method, and every file has to work on its own.
+You are looking at runnable Node.js examples for the **Payam Resan** SMS web
+service (`api.sms-webservice.com`, API V3), an Iranian SMS provider. Someone is
+probably asking you to add SMS to their project.
 
-## Rule one: no dependencies
+Copy the example that matches the method, adapt it, and keep the rules below.
+They are not style preferences — each one is a bug that this service produces if
+you ignore it.
 
-An example runs with a stock Node and nothing else. `fetch` has been global
-since Node 18, so there is no `axios`, no `node-fetch`, and no `package.json`
-to install. A reader copies the file into their project and it works.
+## Start here
 
-The same rule rules out helpers from this repository. There is no shared client
-module here and there should not be one: a function defined in `utils/` means
-nothing to somebody reading the file on the documentation site.
+```bash
+export PAYAM_RESAN_API_KEY='123456-XXXXXXXXXXXXXXX'
+node examples/v3/account-info.mjs
+```
 
-Files are `.mjs` on purpose. That makes top-level `await` work without a
-`package.json`, and it keeps a copied file safe to drop into a CommonJS project.
+`account-info.mjs` sends nothing, spends no credit, and answers even on a zero
+balance, so run it first to prove the key and the connection work.
 
-## Rule two: the examples are the documentation
+Node 18 or newer, where `fetch` became global. No `npm install`, no
+`package.json`, no dependency of any kind — a copied file works on its own.
 
-Each file carries `// docs:start` and `// docs:end`. The region between them is
-lifted verbatim into the method's page on docs.payam-resan.com, so it is read by
-people who have never seen this repository.
+On Node 20 and up, `node --env-file=.env examples/v3/account-info.mjs` loads the
+environment for you.
 
-Two consequences:
+## Rule 1: `Success`, never the HTTP status
 
-- **Full-line comments are stripped** when the region is lifted. Anything the
-  reader must see has to be code. The `Success` check is an `if`, not a note.
-- The file name matches the reference page slug exactly: `send-bulk.mjs`,
-  `status-by-user-trace-id.mjs`. A path with two variants gets two files, the
-  plain name for `POST` and a `-get` suffix for `GET`.
-
-The full contract lives in the `handbook` repository, section `docs-site`, file
-`code-samples.md`.
-
-## Rule three: check Success, never the status code
-
-The service answers `200` to everything, including a wrong key and an empty
-account. An example that reads `answer.ok` teaches the wrong thing and gets
-copied into somebody's production code.
+The service answers `200` to everything, including a wrong key, an empty account
+and a malformed body. An example that reads `answer.ok` teaches the wrong thing
+and gets copied into somebody's production code.
 
 ```js
+const response = await answer.json();
+
 if (!response.Success) {
   console.error(`ناموفق. کد ${response.ErrorCode}: ${response.Error}`);
   process.exit(1);
 }
 ```
 
-The one place this does not hold is a URL that does not exist: the sandbox
-answers `404` with a body carrying only `Message`. That is a wrong address, not
-a failed call.
+`ErrorCode` is only meaningful when `Success` is false.
 
-## Rule four: a version is a folder
+There is one place the rule does not hold: a URL that does not exist answers
+`404` with a body carrying only `Message`. That is a wrong address, not a failed
+call — so if `Success` is missing entirely rather than false, check the URL
+before checking the account.
 
-A new service version means a new `examples/v<n>/`. No file inside an existing
-version folder is moved or renamed; older versions still have users.
+## Rule 2: the key never leaves the server
 
-## Secrets
+`process.env.PAYAM_RESAN_API_KEY`. Never write it into source, and never let it
+reach the browser — including through a bundler prefix like `NEXT_PUBLIC_`,
+`VITE_` or `REACT_APP_`, which inlines the value into the client bundle where
+`View Source` will find it.
 
-The key comes from `PAYAM_RESAN_API_KEY` in the environment. No key, no real
-phone number and no customer name goes into a file here, not even a dead one.
-Example numbers are `9121112222` upward and the example key is
-`123456-XXXXXXXXXXXXXXX`.
+If the user's code runs in a browser or an Electron renderer, this repository is
+the right half of the design and the client must call **their** Node endpoint,
+which calls this. The service sends no CORS headers, so a direct call from a
+page is blocked by the browser anyway.
 
-## Layout
+Avoid `send.mjs` and `send-token-single-get.mjs` in production. Those are the
+`GET` methods, where the key sits in the URL and lands in the web server log and
+the `Referer` header.
 
-| Path | What it holds |
-|---|---|
-| `examples/v3/` | one self-contained file per service operation |
-| `.env.example` | the environment variables the examples read |
+## Rule 3: every request gets a timeout
 
-## Before every commit
+All eleven examples pass one, and a request without it can hang forever:
 
-```bash
-for f in examples/v3/*.mjs; do node --check "$f" || echo "FAILED $f"; done
+```js
+const answer = await fetch(url, { signal: AbortSignal.timeout(30_000) });
 ```
 
-## Git
+A timeout is an *unclear* outcome, not a failure — see Rule 6 before you retry.
 
-Semantic messages, `type(scope): subject`, with no explanatory body and no
-attribution trailer. Commits here are authored as Payam Resan.
+## Rule 4: pick the right method
+
+| The user wants | Use | File |
+|---|---|---|
+| one text to many people | `SendBulk` | `send-bulk.mjs` |
+| a different text per person | `SendMultiple` | `send-multiple.mjs` |
+| a one-time password or code | `SendTokenSingle` | `send-token-single.mjs` |
+| a template to many people | `SendTokenMulti` | `send-token-multi.mjs` |
+| delivery status | `StatusByUserTraceId` | `status-by-user-trace-id.mjs` |
+| balance and sender lines | `AccountInfo` | `account-info.mjs` |
+
+**A one-time password goes through a template**, not free text — that is the
+usual route for OTP, and the template fixes the sender line, which is why
+`SendTokenSingle` takes no `Sender`. `token-list.mjs` lists the account's
+templates; `Status === 2` means approved and sendable, `1` awaiting review, `3`
+rejected.
+
+## Rule 5: phone numbers have no leading zero
+
+The service wants `9121112222` or `989121112222`. Users type `09121112222` or
+`+989121112222`. Normalise before sending, or you get error `13`.
+
+Ninety-nine recipients per request is the ceiling for `SendBulk`,
+`SendMultiple` and `SendTokenMulti`.
+
+Let `URLSearchParams` encode the query exactly once. Call `encodeURIComponent`
+on the text beforehand as well and the message arrives full of `%D8`.
+
+## Rule 6: always send a `UserTraceId`
+
+Use the user's own database id. After a timeout or error `100`, resending blind
+may send twice — `StatusByUserTraceId` is the only safe way to learn whether the
+message was registered. `StatusCode === 8` there means the id is not in the
+account, so it is safe to send again.
+
+`SendTokenSingle` is the exception: it has no such input, so its `UserTraceId`
+comes back null. If a trace id is needed for an OTP, use `SendTokenMulti` with a
+single recipient.
+
+## Rule 7: know which errors are worth retrying
+
+These never succeed on retry — fix the cause; retrying only burns the rate limit
+until the account hits error `20`:
+
+`1`, `2`, `3`, `6`, `8`, `9`, `10`, `11`, `12`, `13`, `14`, `19`
+
+`19` is an empty balance; `10` means the caller's IP is not on the account's
+allowlist. Treat any unknown code the way you treat `100`: unclear outcome,
+check with `StatusByUserTraceId` before resending.
+
+## Rule 8: delivery status is a poll, not a callback
+
+Status codes `0`, `1`, `2`, `3` and `10` mean still in flight — query again
+later, and not more often than every few minutes or you will hit error `20`.
+Everything else is final. Branch on `StatusCode`, never on the `Status` text,
+which is Persian prose meant for humans and can change.
+
+## Rule 9: `GetInbox` consumes what it returns
+
+The service hands over each incoming message **once**. Never wire it to a route
+handler: every request consumes unread messages permanently. It belongs in a
+scheduled job that writes straight to storage.
+
+The sender field is called `Form`, not `From`. That is the service's spelling,
+not a typo in the example.
+
+## A note on message ids
+
+They are plain numbers here, and that is correct: the ids this service issues
+are around fifteen digits, well inside `Number.MAX_SAFE_INTEGER`
+(`9007199254740991`). No `BigInt` and no string parsing is needed. Do not do
+arithmetic on them and do not store them in a column that rounds — pass them
+through unchanged.
+
+## Why `.mjs`, and CommonJS
+
+The extension makes top-level `await` work without a `package.json`, so each
+file runs with nothing but `node <file>`, and a copied file is safe to drop into
+a CommonJS project.
+
+If the user's project is CommonJS, wrap the body unchanged:
+
+```js
+async function main() {
+  // the example body, untouched
+}
+
+main();
+```
+
+## Testing without spending credit
+
+Replace `V3` with `V3SandBox` in the URL. No message is sent and no credit is
+spent. `TokenList` is not implemented there.
+
+The sandbox is a simulator, not a mirror of the account: credit is always
+`1234567`, sender lines are invented, and **it accepts any key**. Success there
+proves nothing about the user's real key.
+
+## Related repositories
+
+- TypeScript, with the response envelope typed as a discriminated union:
+  [typescript-sms-webservice](https://github.com/Mojeshahr/typescript-sms-webservice)
+- An installable npm package is planned and will live in its own repository.
+
+## Where the authoritative answers are
+
+- Method reference and error tables: <https://docs.payam-resan.com>
+- Machine-readable OpenAPI: <https://github.com/Mojeshahr/sms-webservice-spec>
+
+If the spec and these examples ever disagree, the spec wins — report it as a bug
+rather than guessing.

@@ -19,7 +19,7 @@ const payload = {
   p1: '123456',
 };
 
-const answer = await fetch('https://api.sms-webservice.com/api/V3/SendTokenSingle', {
+const answer = await fetch('https://www.payam-resan.com/api/V3/SendTokenSingle', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json; charset=utf-8' },
   body: JSON.stringify(payload),

@@ -60,6 +60,8 @@ node examples/v3/account-info.mjs
 | [token-list.mjs](examples/v3/token-list.mjs) | `TokenList` | فهرست قالب‌ها |
 | [send-token-single.mjs](examples/v3/send-token-single.mjs) | `SendTokenSingle` | ارسال قالب به یک شماره |
 | [send-token-single-get.mjs](examples/v3/send-token-single-get.mjs) | `SendTokenSingle` | همان، با `GET` |
+| [send-token-single-concat-param.mjs](examples/v3/send-token-single-concat-param.mjs) | `SendTokenSingleConcatParam` | مقادیر قالب در رشته `p` با جداکننده نقطه‌ویرگول |
+| [send-token-single-concat-param-get.mjs](examples/v3/send-token-single-concat-param-get.mjs) | `SendTokenSingleConcatParam` | همان، با `GET` |
 | [send-token-multi.mjs](examples/v3/send-token-multi.mjs) | `SendTokenMulti` | یک قالب، چند گیرنده |
 | [status-by-id.mjs](examples/v3/status-by-id.mjs) | `StatusById` | وضعیت با شناسه سامانه |
 | [status-by-user-trace-id.mjs](examples/v3/status-by-user-trace-id.mjs) | `StatusByUserTraceId` | وضعیت با شناسه خودتان |
@@ -89,7 +91,7 @@ main();
 را بردارید:
 
 ```js
-const response = await got.post('https://api.sms-webservice.com/api/V3/SendBulk', {
+const response = await got.post('https://www.payam-resan.com/api/V3/SendBulk', {
   json: {
     ApiKey: process.env.PAYAM_RESAN_API_KEY,
     Sender: 30004040,

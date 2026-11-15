@@ -19,7 +19,7 @@ const query = new URLSearchParams({
   p1: '123456',
 });
 
-const url = `https://api.sms-webservice.com/api/V3/SendTokenSingle?${query}`;
+const url = `https://www.payam-resan.com/api/V3/SendTokenSingle?${query}`;
 
 const answer = await fetch(url, { signal: AbortSignal.timeout(30_000) });
 const response = await answer.json();

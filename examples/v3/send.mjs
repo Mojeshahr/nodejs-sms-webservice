@@ -20,7 +20,7 @@ const query = new URLSearchParams({
 
 // URLSearchParams دقیقاً یک بار encode می‌کند. اگر متن را خودتان هم پیش از
 // این encodeURIComponent کنید، پیامک با نویسه‌های %D8 به گوشی می‌رسد.
-const url = `https://api.sms-webservice.com/api/V3/Send?${query}`;
+const url = `https://www.payam-resan.com/api/V3/Send?${query}`;
 
 const answer = await fetch(url, { signal: AbortSignal.timeout(30_000) });
 const response = await answer.json();

@@ -1,7 +1,7 @@
 # Working with this repository
 
 You are looking at runnable Node.js examples for the **Payam Resan** SMS web
-service (`api.sms-webservice.com`, API V3), an Iranian SMS provider. Someone is
+service (`www.payam-resan.com`, API V3), an Iranian SMS provider. Someone is
 probably asking you to add SMS to their project.
 
 Copy the example that matches the method, adapt it, and keep the rules below.
@@ -64,7 +64,7 @@ the `Referer` header.
 
 ## Rule 3: every request gets a timeout
 
-All eleven examples pass one, and a request without it can hang forever:
+All thirteen examples pass one, and a request without it can hang forever:
 
 ```js
 const answer = await fetch(url, { signal: AbortSignal.timeout(30_000) });

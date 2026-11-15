@@ -31,7 +31,7 @@ const payload = {
   ],
 };
 
-const answer = await fetch('https://api.sms-webservice.com/api/V3/SendMultiple', {
+const answer = await fetch('https://www.payam-resan.com/api/V3/SendMultiple', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json; charset=utf-8' },
   body: JSON.stringify(payload),

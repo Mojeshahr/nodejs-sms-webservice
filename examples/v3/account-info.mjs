@@ -13,7 +13,7 @@
 // docs:start
 const payload = { ApiKey: process.env.PAYAM_RESAN_API_KEY };
 
-const answer = await fetch('https://api.sms-webservice.com/api/V3/AccountInfo', {
+const answer = await fetch('https://www.payam-resan.com/api/V3/AccountInfo', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json; charset=utf-8' },
   body: JSON.stringify(payload),

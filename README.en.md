@@ -58,6 +58,8 @@ exception is `TokenList`, which the sandbox does not implement.
 | [token-list.mjs](examples/v3/token-list.mjs) | `TokenList` | The account's templates |
 | [send-token-single.mjs](examples/v3/send-token-single.mjs) | `SendTokenSingle` | Send a template to one number |
 | [send-token-single-get.mjs](examples/v3/send-token-single-get.mjs) | `SendTokenSingle` | The same, over `GET` |
+| [send-token-single-concat-param.mjs](examples/v3/send-token-single-concat-param.mjs) | `SendTokenSingleConcatParam` | Template values in one semicolon-separated `p` string |
+| [send-token-single-concat-param-get.mjs](examples/v3/send-token-single-concat-param-get.mjs) | `SendTokenSingleConcatParam` | The same, over `GET` |
 | [send-token-multi.mjs](examples/v3/send-token-multi.mjs) | `SendTokenMulti` | One template, many recipients |
 | [status-by-id.mjs](examples/v3/status-by-id.mjs) | `StatusById` | Status by the service's id |
 | [status-by-user-trace-id.mjs](examples/v3/status-by-user-trace-id.mjs) | `StatusByUserTraceId` | Status by your own id |
@@ -85,7 +87,7 @@ copying the file into your project is enough. If you already have an HTTP
 client, take only the request body and the response check:
 
 ```js
-const response = await got.post('https://api.sms-webservice.com/api/V3/SendBulk', {
+const response = await got.post('https://www.payam-resan.com/api/V3/SendBulk', {
   json: {
     ApiKey: process.env.PAYAM_RESAN_API_KEY,
     Sender: 30004040,

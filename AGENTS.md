@@ -24,11 +24,12 @@ Node 18 or newer, where `fetch` became global. No `npm install`, no
 On Node 20 and up, `node --env-file=.env examples/v3/account-info.mjs` loads the
 environment for you.
 
-## Rule 1: `Success`, never the HTTP status
+## Rule 1: inspect the HTTP status and `Success`
 
-The service answers `200` to everything, including a wrong key, an empty account
-and a malformed body. An example that reads `answer.ok` teaches the wrong thing
-and gets copied into somebody's production code.
+Normal V3 operations return `200`; the GET and POST `SendTokenSingleConcatParam`
+operations also document `429` and `default` responses. A non-2xx response may not
+have the normal envelope. `answer.ok` alone does not establish API success;
+inspect `Success` when an envelope is present.
 
 ```js
 const response = await answer.json();
@@ -41,7 +42,7 @@ if (!response.Success) {
 
 `ErrorCode` is only meaningful when `Success` is false.
 
-There is one place the rule does not hold: a URL that does not exist answers
+For example, a URL that does not exist answers
 `404` with a body carrying only `Message`. That is a wrong address, not a failed
 call — so if `Success` is missing entirely rather than false, check the URL
 before checking the account.
@@ -78,6 +79,7 @@ A timeout is an *unclear* outcome, not a failure — see Rule 6 before you retry
 |---|---|---|
 | one text to many people | `SendBulk` | `send-bulk.mjs` |
 | a different text per person | `SendMultiple` | `send-multiple.mjs` |
+| a template with semicolon parameters | `SendTokenSingleConcatParam` | `send-token-single-concat-param.mjs` |
 | a one-time password or code | `SendTokenSingle` | `send-token-single.mjs` |
 | a template to many people | `SendTokenMulti` | `send-token-multi.mjs` |
 | delivery status | `StatusByUserTraceId` | `status-by-user-trace-id.mjs` |
@@ -131,7 +133,8 @@ which is Persian prose meant for humans and can change.
 
 ## Rule 9: `GetInbox` consumes what it returns
 
-The service hands over each incoming message **once**. Never wire it to a route
+Each `GetInbox` call retrieves the entire current inbox and permanently removes
+the returned messages. A later call cannot retrieve them again. Never wire it to a route
 handler: every request consumes unread messages permanently. It belongs in a
 scheduled job that writes straight to storage.
 
@@ -165,7 +168,8 @@ main();
 ## Testing without spending credit
 
 Replace `V3` with `V3SandBox` in the URL. No message is sent and no credit is
-spent. `TokenList` is not implemented there.
+spent. `TokenList` returns mock templates there; use production for the account's
+real templates.
 
 The sandbox is a simulator, not a mirror of the account: credit is always
 `1234567`, sender lines are invented, and **it accepts any key**. Success there

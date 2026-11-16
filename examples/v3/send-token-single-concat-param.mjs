@@ -34,7 +34,7 @@ if (!response.Success) {
   process.exit(1);
 }
 
-// این متد UserTraceId در ورودی ندارد، پس در پاسخ null برمی‌گردد. اگر شناسه
+// این متد در ورودی UserTraceId ندارد؛ فیلد پاسخ UserTraceId nullable است و مقدارش را سرویس تعیین می‌کند. اگر شناسه
 // پی‌گیری لازم دارید، SendTokenMulti را حتی برای یک گیرنده هم می‌شود به کار برد.
 for (const message of response.Result) {
   console.log(`شناسه ${message.Id} از خط ${message.Sender}`);

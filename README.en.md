@@ -106,9 +106,10 @@ repository.
 
 ## Four things that will save you time
 
-**Do not read the HTTP status code.** The service answers `200` to everything,
-including a wrong key, so `answer.ok` says nothing about success. Decide on the
-`Success` field. Every example here does.
+**Inspect the HTTP status and the `Success` field.** Normal V3 operations return
+`200`; the GET and POST `SendTokenSingleConcatParam` operations also document
+`429` and `default` responses, which may lack the normal envelope. HTTP success
+alone does not establish API success; inspect `Success` when an envelope is present.
 
 **Recipient numbers carry no leading zero.** Use `9121112222`, or
 `989121112222` with the country code. A number that does not start with `9` or

@@ -36,11 +36,12 @@ Two consequences:
 The full contract lives in the `handbook` repository, section `docs-site`, file
 `code-samples.md`.
 
-## Rule three: check Success, never the status code
+## Rule three: inspect the HTTP status and Success
 
-The service answers `200` to everything, including a wrong key and an empty
-account. An example that reads `answer.ok` teaches the wrong thing and gets
-copied into somebody's production code.
+Normal V3 operations return `200`; the GET and POST `SendTokenSingleConcatParam`
+operations also document `429` and `default` responses. A non-2xx response may not
+have the normal envelope. `answer.ok` alone does not establish API success;
+inspect `Success` when an envelope is present.
 
 ```js
 if (!response.Success) {
@@ -49,7 +50,7 @@ if (!response.Success) {
 }
 ```
 
-The one place this does not hold is a URL that does not exist: the sandbox
+For example, a URL that does not exist in the sandbox
 answers `404` with a body carrying only `Message`. That is a wrong address, not
 a failed call.
 
